@@ -30,7 +30,7 @@ import net.floodlightcontroller.core.IOFMessageListener;
 
 @JsonSerialize(using=CumulativeTimeBucketJSONSerializer.class)
 public class CumulativeTimeBucket {
-	private static int SATISFIED_PROCTIME_NS = 10000; // nano second
+	private static int SATISFIED_PROCTIME_NS = 25000; // nano second
     private long startTime_ns; // First pkt time-stamp in this bucket
     private Map<Integer, OneComponentTime> compStats;
     private long totalPktCnt;
