@@ -364,7 +364,7 @@ public class Device implements IDevice {
 
         // Prepare the new attachment point list.
         if (moved) {
-            log.info("updateAttachmentPoint: ap {}  newmap {} ", attachmentPoints, newMap);
+            //log.info("updateAttachmentPoint: ap {}  newmap {} ", attachmentPoints, newMap);
             List<AttachmentPoint> newAPList =
                     new ArrayList<AttachmentPoint>();
             if (newMap != null) newAPList.addAll(newMap.values());
