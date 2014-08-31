@@ -90,7 +90,6 @@ public class PktInProcessingTime
     // Maintains the time when the last packet was processed
     protected long lastPktTime_ns;
     private CumulativeTimeBucket ctb = null;
-
     
     /***
      * BUCKET_SET_SIZE buckets each holding 10s of processing time data, a total
@@ -148,6 +147,7 @@ public class PktInProcessingTime
         }
     }
     
+
     @Override
     @LogMessageDoc(level="WARN",
             message="Time to process packet-in exceeded threshold: {}",
@@ -158,6 +158,11 @@ public class PktInProcessingTime
         if (isEnabled()) {
             long procTimeNs = System.nanoTime() - startTimePktNs;
             ctb.updatePerPacketCounters(procTimeNs);
+            ctb.updataPerPacketInCounters(procTimeNs);           
+            logger.info("PktIn ProcTimeNs={},PktInCnt={}",procTimeNs,ctb.getAllPktInCntPerSec());
+            logger.info("SatCnt={},TolerateCnt={},",ctb.getSatisfiedLatencyCnt(),ctb.getToleratedLatencyCnt());
+            logger.info("UnSatCnt={},LPIndex={}",ctb.getUntoleratedLatencyCnt(),ctb.getLPIndex());
+            
             
             if (ptWarningThresholdInNano > 0 && 
                     procTimeNs > ptWarningThresholdInNano) {

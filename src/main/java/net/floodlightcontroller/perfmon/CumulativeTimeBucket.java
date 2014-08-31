@@ -16,9 +16,12 @@
 
 package net.floodlightcontroller.perfmon;
 
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -27,6 +30,7 @@ import net.floodlightcontroller.core.IOFMessageListener;
 
 @JsonSerialize(using=CumulativeTimeBucketJSONSerializer.class)
 public class CumulativeTimeBucket {
+	private static int SATISFIED_PROCTIME_NS = 10000; // nano second
     private long startTime_ns; // First pkt time-stamp in this bucket
     private Map<Integer, OneComponentTime> compStats;
     private long totalPktCnt;
@@ -36,6 +40,12 @@ public class CumulativeTimeBucket {
     private long minTotalProcTimeNs;
     private long avgTotalProcTimeNs;
     private long sigmaTotalProcTimeNs; // std. deviation
+    private static long satisfiedLatencyCnt;  //per second
+    private static long toleratedLatencyCnt;  //per second
+    private static long untoleratedLatencyCnt;//per second
+    private static long allPktInCntPerSec;    //per second
+    private static double LPIndex;            //per second
+    //Latency Performance index: LPIndex=(satisfiedLatencyCnt + 0.5*toleratedLatencyCnt)/allPktInCntPerSec;
 
     public long getStartTimeNs() {
         return startTime_ns;
@@ -59,6 +69,26 @@ public class CumulativeTimeBucket {
     
     public long getTotalSigmaProcTimeNs() {
         return sigmaTotalProcTimeNs;
+    }
+    
+    public long getSatisfiedLatencyCnt() {
+        return satisfiedLatencyCnt;
+    }
+    
+    public long getToleratedLatencyCnt() {
+        return toleratedLatencyCnt;
+    }
+    
+    public long getUntoleratedLatencyCnt() {
+        return untoleratedLatencyCnt;
+    }
+    
+    public long getAllPktInCntPerSec() {
+        return allPktInCntPerSec;
+    }
+    
+    public double getLPIndex() {
+        return LPIndex;
     }
     
     public int getNumComps() {
@@ -91,13 +121,34 @@ public class CumulativeTimeBucket {
         totalProcTimeNs = 0;
         avgTotalProcTimeNs = 0;
         sumSquaredProcTimeNs2 = 0;
-        maxTotalProcTimeNs = Long.MIN_VALUE;
-        minTotalProcTimeNs = Long.MAX_VALUE;
+        maxTotalProcTimeNs = 0;
+        minTotalProcTimeNs = 0;
         sigmaTotalProcTimeNs = 0;
         for (OneComponentTime oct : compStats.values()) {
             oct.resetAllCounters();
         }
     }
+    public static void resetPerSecond() {
+    	computeLPIndex();
+    	satisfiedLatencyCnt = 0;
+    	toleratedLatencyCnt = 0;
+    	untoleratedLatencyCnt = 0;
+    	allPktInCntPerSec = 0;
+    	LPIndex = 0;
+    }
+    
+    //Reset Counter for LPIndex(latency performance index)
+    public static class ResetCounterTask extends TimerTask {
+    	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        @Override
+        public void run() {
+        	System.out.println(sdf.format(new Date()));
+        	CumulativeTimeBucket.resetPerSecond();
+        }
+    }
+    //ResetCounterTask resetTask = new ResetCounterTask();
+    //Timer timer = new Timer();
+    //timer.schedule(resetTask, 0, 1000); // do resetTask per second;
     
     private void computeSigma() {
         // Computes std. deviation from the sum of count numbers and from
@@ -117,6 +168,10 @@ public class CumulativeTimeBucket {
         }
     }
     
+    public static void computeLPIndex() {
+    	LPIndex=(satisfiedLatencyCnt + 0.5*toleratedLatencyCnt)/allPktInCntPerSec;
+    }
+    
     public void updatePerPacketCounters(long procTimeNs) {
         totalPktCnt++;
         totalProcTimeNs += procTimeNs;
@@ -132,6 +187,19 @@ public class CumulativeTimeBucket {
         }
     }
     
+    public void updataPerPacketInCounters(long procTimeNs){
+    	allPktInCntPerSec++;
+    	computeLPIndex();
+    	if(procTimeNs<=SATISFIED_PROCTIME_NS) {
+    		satisfiedLatencyCnt++;
+    	}
+    	else if(procTimeNs<=4*SATISFIED_PROCTIME_NS) {
+    		toleratedLatencyCnt++;
+    	}else {
+    		untoleratedLatencyCnt++;
+    	}   	
+    }
+        
     public void updateOneComponent(IOFMessageListener l, long procTimeNs) {
         compStats.get(l.hashCode()).updatePerPacketCounters(procTimeNs);
     }
