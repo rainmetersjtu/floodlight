@@ -1822,7 +1822,7 @@ public class Controller implements IFloodlightProviderService,
                     // Get the starting time (overall and per-component) of
                     // the processing chain for this packet if performance
                     // monitoring is turned on
-                    pktinProcTime.recordStartTimePktIn();                    
+                    pktinProcTime.recordStartTimePktIn();
                     Command cmd;
                     for (IOFMessageListener listener : listeners) {
                         pktinProcTime.recordStartTimeComp(listener);
@@ -1833,7 +1833,7 @@ public class Controller implements IFloodlightProviderService,
                             break;
                         }
                     }
-                    pktinProcTime.recordEndTimePktIn(sw, m, bc);                   
+                    pktinProcTime.recordEndTimePktIn(sw, m, bc);
                 } else {
                     if (m.getType() != OFType.BARRIER_REPLY)
                         log.warn("Unhandled OF Message: {} from {}", m, sw);

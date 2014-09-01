@@ -158,12 +158,11 @@ public class PktInProcessingTime
         if (isEnabled()) {
             long procTimeNs = System.nanoTime() - startTimePktNs;
             ctb.updatePerPacketCounters(procTimeNs);
-            ctb.updataPerPacketInCounters(procTimeNs);           
-            logger.info("PktIn ProcTimeNs={},PktInCnt={}",procTimeNs,ctb.getAllPktInCntPerSec());
-            logger.info("SatCnt={},TolerateCnt={},",ctb.getSatisfiedLatencyCnt(),ctb.getToleratedLatencyCnt());
-            logger.info("UnSatCnt={},LPIndex={}",ctb.getUntoleratedLatencyCnt(),ctb.getLPIndex());
-            
-            
+            //ctb.updataPerPacketInCounters(procTimeNs);           
+            //logger.info("PktIn ProcTimeNs={},PktInCnt={}",procTimeNs,ctb.getAllPktInCntPerSec());
+            //logger.info("SatCnt={},TolerateCnt={},",ctb.getSatisfiedLatencyCnt(),ctb.getToleratedLatencyCnt());
+            //logger.info("UnSatCnt={},LPIndex={}",ctb.getUntoleratedLatencyCnt(),ctb.getLPIndex());
+                        
             if (ptWarningThresholdInNano > 0 && 
                     procTimeNs > ptWarningThresholdInNano) {
                 logger.warn("Time to process packet-in exceeded threshold: {}", 
