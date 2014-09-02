@@ -16,12 +16,9 @@
 
 package net.floodlightcontroller.perfmon;
 
-import java.text.SimpleDateFormat;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -40,12 +37,12 @@ public class CumulativeTimeBucket {
     private long minTotalProcTimeNs;
     private long avgTotalProcTimeNs;
     private long sigmaTotalProcTimeNs; // std. deviation
-    private static long satisfiedLatencyCnt;  //per second
-    private static long toleratedLatencyCnt;  //per second
-    private static long untoleratedLatencyCnt;//per second
-    private static long allPktInCntPerSec;    //per second
-    private static double LPIndex;            //per second
-    //Latency Performance index: LPIndex=(satisfiedLatencyCnt + 0.5*toleratedLatencyCnt)/allPktInCntPerSec;
+    private static long satisfiedLatencyCnt;
+    private static long toleratedLatencyCnt;
+    private static long untoleratedLatencyCnt;
+    private static long allPktInCnt;
+    private static double LPIndex;
+    //Latency Performance index: LPIndex=(satisfiedLatencyCnt + 0.5*toleratedLatencyCnt)/allPktInCnt;
 
     public long getStartTimeNs() {
         return startTime_ns;
@@ -83,8 +80,8 @@ public class CumulativeTimeBucket {
         return untoleratedLatencyCnt;
     }
     
-    public long getAllPktInCntPerSec() {
-        return allPktInCntPerSec;
+    public long getAllPktInCnt() {
+        return allPktInCnt;
     }
     
     public double getLPIndex() {
@@ -121,8 +118,8 @@ public class CumulativeTimeBucket {
         totalProcTimeNs = 0;
         avgTotalProcTimeNs = 0;
         sumSquaredProcTimeNs2 = 0;
-        maxTotalProcTimeNs = 0;
-        minTotalProcTimeNs = 0;
+        maxTotalProcTimeNs = Long.MIN_VALUE;
+        minTotalProcTimeNs = Long.MAX_VALUE;
         sigmaTotalProcTimeNs = 0;
         for (OneComponentTime oct : compStats.values()) {
             oct.resetAllCounters();
@@ -130,25 +127,15 @@ public class CumulativeTimeBucket {
     }
     public static void resetPerSecond() {
     	computeLPIndex();
+    	System.out.printf("satcount=%d,toleratedcount=%d,untolcount=%d,lpindex=%f\n", 
+    			satisfiedLatencyCnt,toleratedLatencyCnt,untoleratedLatencyCnt,LPIndex);
     	satisfiedLatencyCnt = 0;
     	toleratedLatencyCnt = 0;
     	untoleratedLatencyCnt = 0;
-    	allPktInCntPerSec = 0;
+    	allPktInCnt = 0;
     	LPIndex = 0;
     }
-    
-    //Reset Counter for LPIndex(latency performance index)
-    public static class ResetCounterTask extends TimerTask {
-    	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        @Override
-        public void run() {
-        	System.out.println(sdf.format(new Date()));
-        	CumulativeTimeBucket.resetPerSecond();
-        }
-    }
-    //ResetCounterTask resetTask = new ResetCounterTask();
-    //Timer timer = new Timer();
-    //timer.schedule(resetTask, 0, 1000); // do resetTask per second;
+
     
     private void computeSigma() {
         // Computes std. deviation from the sum of count numbers and from
@@ -169,7 +156,11 @@ public class CumulativeTimeBucket {
     }
     
     public static void computeLPIndex() {
-    	LPIndex=(satisfiedLatencyCnt + 0.5*toleratedLatencyCnt)/allPktInCntPerSec;
+    	if(allPktInCnt==0) {
+    		return;
+    	}else {
+    		LPIndex=(satisfiedLatencyCnt + 0.5*toleratedLatencyCnt)/allPktInCnt;
+    	}
     }
     
     public void updatePerPacketCounters(long procTimeNs) {
@@ -188,8 +179,7 @@ public class CumulativeTimeBucket {
     }
     
     public void updataPerPacketInCounters(long procTimeNs){
-    	allPktInCntPerSec++;
-    	computeLPIndex();
+    	allPktInCnt++;
     	if(procTimeNs<=SATISFIED_PROCTIME_NS) {
     		satisfiedLatencyCnt++;
     	}
@@ -197,7 +187,7 @@ public class CumulativeTimeBucket {
     		toleratedLatencyCnt++;
     	}else {
     		untoleratedLatencyCnt++;
-    	}   	
+    	}
     }
         
     public void updateOneComponent(IOFMessageListener l, long procTimeNs) {

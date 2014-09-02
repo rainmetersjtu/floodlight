@@ -40,11 +40,16 @@ public class CumulativeTimeBucketJSONSerializer
        jGen.writeStringField("start-time", ts.toString());
        jGen.writeStringField("current-time", 
          new Timestamp(System.currentTimeMillis()).toString());
-       jGen.writeNumberField("total-packets", ctb.getTotalPktCnt());
+       jGen.writeNumberField("total-packetins", ctb.getTotalPktCnt());
        jGen.writeNumberField("average", ctb.getAverageProcTimeNs());
        jGen.writeNumberField("min", ctb.getMinTotalProcTimeNs());
        jGen.writeNumberField("max", ctb.getMaxTotalProcTimeNs());
        jGen.writeNumberField("std-dev", ctb.getTotalSigmaProcTimeNs());
+       jGen.writeNumberField("satisfiedLatencyCnt", ctb.getSatisfiedLatencyCnt());
+       jGen.writeNumberField("toleratedLatencyCnt", ctb.getToleratedLatencyCnt());
+       jGen.writeNumberField("untoleratedLatencyCnt", ctb.getUntoleratedLatencyCnt());
+       jGen.writeNumberField("allPktInCnt", ctb.getAllPktInCnt());
+       jGen.writeNumberField("LPIndex", ctb.getLPIndex());
        jGen.writeArrayFieldStart("modules");
        for (OneComponentTime oct : ctb.getModules()) {
            serializer.defaultSerializeValue(oct, jGen);

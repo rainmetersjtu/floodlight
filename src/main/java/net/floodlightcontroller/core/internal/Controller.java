@@ -1793,7 +1793,7 @@ public class Controller implements IFloodlightProviderService,
                             pi.getPacketData().length);
                     counterStore.updatePacketInCountersLocal(sw, m, eth);
                 }
-                // fall through to default case...
+                // fall through to default case...            
 
             default:
 

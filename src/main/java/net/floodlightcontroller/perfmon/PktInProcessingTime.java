@@ -19,11 +19,15 @@
  */
 package net.floodlightcontroller.perfmon;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import net.floodlightcontroller.core.FloodlightContext;
 import net.floodlightcontroller.core.IFloodlightProviderService;
@@ -98,6 +102,16 @@ public class PktInProcessingTime
     protected static final int ONE_BUCKET_DURATION_SECONDS = 10;// seconds
     protected static final long ONE_BUCKET_DURATION_NANOSECONDS  =
                                 ONE_BUCKET_DURATION_SECONDS * 1000000000;
+
+    //Reset Counter for LPIndex(latency performance index)
+    public static class ResetCounterTask extends TimerTask {
+    	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        @Override
+        public void run() {
+        	System.out.println(sdf.format(new Date()));
+        	CumulativeTimeBucket.resetPerSecond();
+        }
+    }
     
     @Override
     public void bootstrap(List<IOFMessageListener> listeners) {
@@ -158,7 +172,7 @@ public class PktInProcessingTime
         if (isEnabled()) {
             long procTimeNs = System.nanoTime() - startTimePktNs;
             ctb.updatePerPacketCounters(procTimeNs);
-            //ctb.updataPerPacketInCounters(procTimeNs);           
+            ctb.updataPerPacketInCounters(procTimeNs);  //update for different latency
             //logger.info("PktIn ProcTimeNs={},PktInCnt={}",procTimeNs,ctb.getAllPktInCntPerSec());
             //logger.info("SatCnt={},TolerateCnt={},",ctb.getSatisfiedLatencyCnt(),ctb.getToleratedLatencyCnt());
             //logger.info("UnSatCnt={},LPIndex={}",ctb.getUntoleratedLatencyCnt(),ctb.getLPIndex());
@@ -219,6 +233,9 @@ public class PktInProcessingTime
     public void startUp(FloodlightModuleContext context) {
         // Add our REST API
         restApi.addRestletRoutable(new PerfWebRoutable());
+        ResetCounterTask resetTask = new ResetCounterTask();
+        Timer timer = new Timer();
+        timer.schedule(resetTask, 0, 1000); // do resetTask per second;
         
         // TODO - Alex - change this to a config option
         ptWarningThresholdInNano = Long.parseLong(System.getProperty(
