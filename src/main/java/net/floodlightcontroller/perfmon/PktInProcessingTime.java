@@ -132,6 +132,13 @@ public class PktInProcessingTime
         logger.debug("Setting module to " + isEnabled);
     }
     
+    //setPtWarningThresholdInNano, ptWarningThresholdInMilli configuration from 
+    //net.floodlightcontroller.core.internal.FloodlightProvider.ptwarningthresholdinmilli, default 0
+    @Override
+    public void setPtWarningThresholdInNano(long ptWarningThresholdInMilli) {
+    	this.ptWarningThresholdInNano = ptWarningThresholdInMilli*1000000;
+    }
+    
     @Override
     public CumulativeTimeBucket getCtb() {
         return ctb;
@@ -171,14 +178,20 @@ public class PktInProcessingTime
     public void recordEndTimePktIn(IOFSwitch sw, OFMessage m, FloodlightContext cntx) {
         if (isEnabled()) {
             long procTimeNs = System.nanoTime() - startTimePktNs;
-            ctb.updatePerPacketCounters(procTimeNs);
-            ctb.updataPerPacketInCounters(procTimeNs);  //update for different latency
-                        
-            if (ptWarningThresholdInNano > 0 && 
-                    procTimeNs > ptWarningThresholdInNano) {
-                logger.warn("Time to process packet-in exceeded threshold: {}", 
-                            procTimeNs/1000);
+            if(procTimeNs > 0) {
+            	ctb.updatePerPacketCounters(procTimeNs);
+                ctb.updataPerPacketInCounters(procTimeNs);  //update for different latency
+                
+                if (ptWarningThresholdInNano > 0 && 
+                        procTimeNs > ptWarningThresholdInNano) {
+                    logger.warn("Time to process packet-in:{}us exceeded threshold:{}us", 
+                                procTimeNs/1000,ptWarningThresholdInNano/1000);
+                }
+            }else {
+            	ctb.updateUntoleratedLatencyCnt(procTimeNs);
+            	System.out.printf("lost on packtet in, procTimeNs=%d\n",procTimeNs);
             }
+            
         }
     }
     
@@ -235,8 +248,8 @@ public class PktInProcessingTime
         timer.schedule(resetTask, 0, 1000); // do resetTask per second;
         
         // TODO - Alex - change this to a config option
-        ptWarningThresholdInNano = Long.parseLong(System.getProperty(
-             "net.floodlightcontroller.core.PTWarningThresholdInMilli", "0")) * 1000000;
+        //ptWarningThresholdInNano = Long.parseLong(System.getProperty(
+        //     "net.floodlightcontroller.core.PTWarningThresholdInMilli", "0")) * 1000000;
         if (ptWarningThresholdInNano > 0) {
             logger.info("Packet processing time threshold for warning" +
             		" set to {} ms.", ptWarningThresholdInNano/1000000);

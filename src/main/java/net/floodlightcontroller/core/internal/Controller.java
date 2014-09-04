@@ -169,6 +169,7 @@ public class Controller implements IFloodlightProviderService,
     protected String openFlowHost = null;
     protected int openFlowPort = 6633;
     protected int workerThreads = 0;
+    protected long ptWarningThresholdInMilli = 0;
 
 
     // This controller's current role that modules can use/query to decide
@@ -2214,13 +2215,23 @@ public class Controller implements IFloodlightProviderService,
         String ofPort = configParams.get("openflowport");
         if (ofPort != null) {
             this.openFlowPort = Integer.parseInt(ofPort);
+            log.info("OpenFlow port set to {}", this.openFlowPort);
         }
-        log.debug("OpenFlow port set to {}", this.openFlowPort);
+        
         String threads = configParams.get("workerthreads");
         if (threads != null) {
             this.workerThreads = Integer.parseInt(threads);
+            log.info("Number of worker threads set to {}", this.workerThreads);
         }
-        log.debug("Number of worker threads set to {}", this.workerThreads);
+        
+        String ptWarningThresholdInMilli = configParams.get("ptwarningthresholdinmilli");
+        if (ptWarningThresholdInMilli != null) {
+            this.ptWarningThresholdInMilli = Long.parseLong(ptWarningThresholdInMilli);
+            this.pktinProcTime.setPtWarningThresholdInNano(this.ptWarningThresholdInMilli);
+            log.info("Packet processing time threshold for warning" +
+            		" set to {} ms.", this.ptWarningThresholdInMilli);
+        }
+        
 
     }
 

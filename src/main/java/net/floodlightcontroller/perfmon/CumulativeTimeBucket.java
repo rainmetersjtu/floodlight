@@ -33,8 +33,8 @@ public class CumulativeTimeBucket {
     private long totalPktCnt;
     private long totalProcTimeNs; // total processing time for one pkt in
     private long sumSquaredProcTimeNs2;
-    private long maxTotalProcTimeNs;
-    private long minTotalProcTimeNs;
+    private long maxTotalProcTimeNs = Long.MIN_VALUE;
+    private long minTotalProcTimeNs = Long.MAX_VALUE;
     private long avgTotalProcTimeNs;
     private long sigmaTotalProcTimeNs; // std. deviation
     private static long satisfiedLatencyCnt; 	//per second
@@ -203,7 +203,7 @@ public class CumulativeTimeBucket {
     public void updataPerPacketInCounters(long procTimeNs){
     	allPktInCnt++;
     	sumProcTimeNsPerSec+=procTimeNs;
-    	System.out.println(procTimeNs);
+    	//System.out.println(procTimeNs);
     	if(procTimeNs<=SATISFIED_PROCTIME_NS) {
     		satisfiedLatencyCnt++;
     	}
@@ -212,6 +212,10 @@ public class CumulativeTimeBucket {
     	}else {
     		untoleratedLatencyCnt++;
     	}
+    }
+    
+    public void updateUntoleratedLatencyCnt(long procTimeNs) {
+    	untoleratedLatencyCnt++;
     }
         
     public void updateOneComponent(IOFMessageListener l, long procTimeNs) {

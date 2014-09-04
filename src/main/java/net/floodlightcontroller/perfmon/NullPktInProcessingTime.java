@@ -117,6 +117,11 @@ public class NullPktInProcessingTime
     public void setEnabled(boolean enabled) {
     
     }
+    
+    @Override
+    public void setPtWarningThresholdInNano(long ptWarningThresholdInMilli) {
+    	
+    }
 
     @Override
     public CumulativeTimeBucket getCtb() {

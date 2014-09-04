@@ -50,4 +50,6 @@ public interface IPktInProcessingTimeService extends IFloodlightService {
     public void setEnabled(boolean enabled);
     
     public CumulativeTimeBucket getCtb();
+
+	public void setPtWarningThresholdInNano(long ptWarningThresholdInMilli);
 }
