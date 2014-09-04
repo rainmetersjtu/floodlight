@@ -49,6 +49,7 @@ public class CumulativeTimeBucketJSONSerializer
        jGen.writeNumberField("toleratedLatencyCnt", ctb.getToleratedLatencyCnt());
        jGen.writeNumberField("untoleratedLatencyCnt", ctb.getUntoleratedLatencyCnt());
        jGen.writeNumberField("allPktInCnt", ctb.getAllPktInCnt());
+       jGen.writeNumberField("averProcTimeNsPerSec", ctb.getAverProcTimeNsPerSec());
        jGen.writeNumberField("LPIndex", ctb.getLPIndex());
        jGen.writeArrayFieldStart("modules");
        for (OneComponentTime oct : ctb.getModules()) {
