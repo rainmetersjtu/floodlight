@@ -203,6 +203,7 @@ public class CumulativeTimeBucket {
     public void updataPerPacketInCounters(long procTimeNs){
     	allPktInCnt++;
     	sumProcTimeNsPerSec+=procTimeNs;
+    	System.out.println(procTimeNs);
     	if(procTimeNs<=SATISFIED_PROCTIME_NS) {
     		satisfiedLatencyCnt++;
     	}

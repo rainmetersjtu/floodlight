@@ -171,10 +171,8 @@ public class PktInProcessingTime
     public void recordEndTimePktIn(IOFSwitch sw, OFMessage m, FloodlightContext cntx) {
         if (isEnabled()) {
             long procTimeNs = System.nanoTime() - startTimePktNs;
-            logger.info("ProcTimeNs={},startTimePktNs={}",procTimeNs,startTimePktNs);
             ctb.updatePerPacketCounters(procTimeNs);
             ctb.updataPerPacketInCounters(procTimeNs);  //update for different latency
-            logger.info("ProcTimeNs={}",procTimeNs);
                         
             if (ptWarningThresholdInNano > 0 && 
                     procTimeNs > ptWarningThresholdInNano) {
