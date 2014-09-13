@@ -138,9 +138,10 @@ public class CumulativeTimeBucket {
     public static void resetPerSecond() {
     	computeLPIndex();
     	computeAverProcTimeNsPerSec();
-    	System.out.printf("allPktInCnt=%d,satcount=%d,toleratedcount=%d,untolcount=%d,lpindex=%f\n", 
-    			allPktInCnt,satisfiedLatencyCnt,toleratedLatencyCnt,untoleratedLatencyCnt,LPIndex);
-    	System.out.printf("averProcTimeNsPerSec=%d\n", averProcTimeNsPerSec);
+    	System.out.printf("allPktInCnt=%d,satcount=%d,toleratedcount=%d,untolcount=%d,lpindex=%f,"
+    			+ "averProcTimeNsPerSec=%d\n", 
+    			allPktInCnt,satisfiedLatencyCnt,toleratedLatencyCnt,untoleratedLatencyCnt,LPIndex,
+    			averProcTimeNsPerSec);
     	satisfiedLatencyCnt = 0;
     	toleratedLatencyCnt = 0;
     	untoleratedLatencyCnt = 0;
