@@ -40,11 +40,12 @@ public class CumulativeTimeBucket {
     private static long satisfiedLatencyCnt; 	//per second
     private static long toleratedLatencyCnt;	//per second
     private static long untoleratedLatencyCnt;	//per second
-    private static long allPktInCnt;			//per second
+    private static long allProcPktInCnt;		//per second this is for processed
+    private static long allPktInCnt;
     private static long sumProcTimeNsPerSec;	//per second
     private static long averProcTimeNsPerSec;	//per second
     private static double LPIndex;				//per second
-    //Latency Performance index: LPIndex=(satisfiedLatencyCnt + 0.5*toleratedLatencyCnt)/allPktInCnt;
+    //Latency Performance index: LPIndex=(satisfiedLatencyCnt + 0.5*toleratedLatencyCnt)/allProcPktInCnt;
 
     public long getStartTimeNs() {
         return startTime_ns;
@@ -82,7 +83,11 @@ public class CumulativeTimeBucket {
         return untoleratedLatencyCnt;
     }
     
-    public long getAllPktInCnt() {
+    public long getallProcPktInCnt() {
+        return allProcPktInCnt;
+    }
+    
+    public long getallPktInCnt() {
         return allPktInCnt;
     }
     
@@ -137,6 +142,7 @@ public class CumulativeTimeBucket {
     }
     public static void resetPerSecond() {
     	computeLPIndex();
+    	untoleratedLatencyCnt = allPktInCnt - satisfiedLatencyCnt - toleratedLatencyCnt;
     	computeAverProcTimeNsPerSec();
     	System.out.printf("allPktInCnt=%d,satcount=%d,toleratedcount=%d,untolcount=%d,lpindex=%f,"
     			+ "averProcTimeNsPerSec=%d\n", 
@@ -145,6 +151,7 @@ public class CumulativeTimeBucket {
     	satisfiedLatencyCnt = 0;
     	toleratedLatencyCnt = 0;
     	untoleratedLatencyCnt = 0;
+    	allProcPktInCnt = 0;
     	allPktInCnt = 0;
     	sumProcTimeNsPerSec = 0;
     	//averProcTimeNsPerSec = 0;
@@ -171,19 +178,23 @@ public class CumulativeTimeBucket {
     }
     
     public static void computeAverProcTimeNsPerSec() {
-    	if(allPktInCnt==0) {
+    	if(allProcPktInCnt==0) {
     		averProcTimeNsPerSec = 0;
     	}else {
-    		averProcTimeNsPerSec = sumProcTimeNsPerSec/allPktInCnt;
+    		averProcTimeNsPerSec = sumProcTimeNsPerSec/allProcPktInCnt;
     	}
     }
     
     public static void computeLPIndex() {
-    	if(allPktInCnt==0) {
+    	if(allProcPktInCnt==0) {
     		LPIndex = 1;
     	}else {
     		LPIndex = (satisfiedLatencyCnt + 0.5*toleratedLatencyCnt)/allPktInCnt;
     	}
+    }
+    
+    public void updateAllPktInCnt() {
+    	allPktInCnt++;
     }
     
     public void updatePerPacketCounters(long procTimeNs) {
@@ -202,7 +213,7 @@ public class CumulativeTimeBucket {
     }
     
     public void updataPerPacketInCounters(long procTimeNs){
-    	allPktInCnt++;
+    	allProcPktInCnt++;
     	sumProcTimeNsPerSec+=procTimeNs;
     	//System.out.println(procTimeNs);
     	if(procTimeNs<=SATISFIED_PROCTIME_NS) {

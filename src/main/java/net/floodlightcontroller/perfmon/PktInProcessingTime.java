@@ -22,7 +22,7 @@ package net.floodlightcontroller.perfmon;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
+//import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -165,6 +165,7 @@ public class PktInProcessingTime
     public void recordStartTimePktIn() {
         if (isEnabled()) {
             startTimePktNs = System.nanoTime();
+            ctb.updateAllPktInCnt();
         }
     }
     
