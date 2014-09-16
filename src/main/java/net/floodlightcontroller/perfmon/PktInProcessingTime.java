@@ -22,7 +22,7 @@ package net.floodlightcontroller.perfmon;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-//import java.util.Date;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,7 +108,7 @@ public class PktInProcessingTime
     	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         @Override
         public void run() {
-        	//System.out.println(sdf.format(new Date()));
+        	System.out.printf(sdf.format(new Date())+",");
         	CumulativeTimeBucket.resetPerSecond();
         }
     }
