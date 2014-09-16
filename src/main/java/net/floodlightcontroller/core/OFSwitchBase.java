@@ -1501,15 +1501,15 @@ public abstract class OFSwitchBase implements IOFSwitch {
                 return;
             }
             // write out drop flow per port
-            SwitchPort swPort = new SwitchPort(getId(), port);
-            ForwardingBase.blockHost(floodlightProvider,
-                    swPort, -1L, (short) 5,
-                    AppCookie.makeCookie(OFSWITCH_APP_ID, 1));
-            floodlightProvider.addSwitchEvent(this.datapathId,
-                    "SWITCH_PORT_BLOCKED_TEMPORARILY " +
-                    "OFPort " + port, false);
-            log.info("Excessive packet in from {}, block port for 5 sec",
-                    swPort);
+           // SwitchPort swPort = new SwitchPort(getId(), port);
+            //ForwardingBase.blockHost(floodlightProvider,
+              //      swPort, -1L, (short) 5,
+                //    AppCookie.makeCookie(OFSWITCH_APP_ID, 1));
+           // floodlightProvider.addSwitchEvent(this.datapathId,
+             //       "SWITCH_PORT_BLOCKED_TEMPORARILY " +
+               //     "OFPort " + port, false);
+            //log.info("Excessive packet in from {}, block port for 5 sec",
+              //      swPort);
         }
     }
 
