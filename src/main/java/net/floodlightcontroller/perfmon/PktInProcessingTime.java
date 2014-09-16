@@ -108,7 +108,7 @@ public class PktInProcessingTime
     	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         @Override
         public void run() {
-        	System.out.println(sdf.format(new Date()));
+        	//System.out.println(sdf.format(new Date()));
         	CumulativeTimeBucket.resetPerSecond();
         }
     }
@@ -184,12 +184,12 @@ public class PktInProcessingTime
                 
                 if (ptWarningThresholdInNano > 0 && 
                         procTimeNs > ptWarningThresholdInNano) {
-                    logger.warn("Time to process packet-in:{}us exceeded threshold:{}us", 
-                                procTimeNs/1000,ptWarningThresholdInNano/1000);
+                    //logger.warn("Time to process packet-in:{}us exceeded threshold:{}us", 
+                                //procTimeNs/1000,ptWarningThresholdInNano/1000);
                 }
             }else {
             	ctb.updateUntoleratedLatencyCnt(procTimeNs);
-            	System.out.printf("lost on packtet in, procTimeNs=%d\n",procTimeNs);
+            	//System.out.printf("lost on packtet in, procTimeNs=%d\n",procTimeNs);
             }
             
         }
