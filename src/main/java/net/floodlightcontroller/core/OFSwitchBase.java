@@ -129,7 +129,7 @@ public abstract class OFSwitchBase implements IOFSwitch {
     private boolean writeThrottleEnabled = false;
     protected boolean packetInThrottleEnabled = false; // used by test
     private int packetInRateThresholdHigh =
-            Integer.parseInt(System.getProperty("input_threshold", "10000"));
+            Integer.parseInt(System.getProperty("input_threshold", "100000"));
     private int packetInRateThresholdLow = 1;
     private int packetInRatePerMacThreshold = 50;
     private int packetInRatePerPortThreshold = 100;
@@ -1337,10 +1337,10 @@ public abstract class OFSwitchBase implements IOFSwitch {
         ctrSwitchPktin.updateCounterNoFlush();
         // Compute current packet in rate
         messageCount++;
-        if (messageCount % 10000 == 0) {
+        if (messageCount % 100000 == 0) {
             long now = System.currentTimeMillis();
             if (now != lastMessageTime) {
-                currentRate = (int) (10000000 / (now - lastMessageTime));
+                currentRate = (int) (100000000 / (now - lastMessageTime));
                 lastMessageTime = now;
             } else {
                 currentRate = Integer.MAX_VALUE;
